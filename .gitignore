@@ -58,3 +58,6 @@ target/
 
 # tests output
 tests-out/
+
+# temp docs
+docs/

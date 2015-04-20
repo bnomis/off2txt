@@ -35,6 +35,11 @@ If an extracted file would be empty, it is not created.
 
 Excel is different. Columns are preserved. So may get a CSV file of empty columns. Cells are put in the extracted ASCII file if they containt ASCII only otherwise they are streamed to the Unicode file.
 
+## Installation
+
+```shell
+pip install off2txt
+```
 
 ## Usage
 

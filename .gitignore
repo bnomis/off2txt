@@ -61,3 +61,6 @@ tests-out/
 
 # temp docs
 docs/
+
+# temp dev dir
+dev/

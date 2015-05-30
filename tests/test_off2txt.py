@@ -46,6 +46,9 @@ class Cmd(object):
     def __str__(self):
         return self.cmd
 
+    def __repr__(self):
+        return self.cmd
+
     def argv(self):
         args = []
         if self.chdir:

@@ -16,6 +16,17 @@ from openpyxl import load_workbook
 from .logger import error, init_logging
 
 
+if sys.version_info.major == 2:
+
+    def is_astring(options, cell):
+        return isinstance(cell, (str, unicode))
+
+else:
+
+    def is_astring(options, cell):
+        return isinstance(cell, (str))
+
+
 def writerr(options, line, exception=None, set_exit_status=True):
     if set_exit_status:
         options.exit_status = 'error'
@@ -144,9 +155,13 @@ def split_end_of_line(outlines_ascii, outlines_unicode, line_ascii, line_unicode
         if stripped:
             outlines_unicode.append(val)
 
+
 def split_ascii_unicode(options, text_runs):
     if not text_runs:
         return None, None
+
+    if not isinstance(text_runs, (tuple, list)):
+        text_runs = [text_runs, ]
 
     outlines_ascii = []
     outlines_unicode = []
@@ -171,6 +186,27 @@ def split_ascii_unicode(options, text_runs):
     return outlines_ascii, outlines_unicode
 
 
+def split_ascii_unicode_line(options, line):
+    if not line:
+        return None, None
+
+    line_ascii = []
+    line_unicode = []
+
+    for c in line:
+        # end of line
+        if c in ('\n', '\r'):
+            continue
+
+        val = ord(c)
+        if val < 128:
+            line_ascii.append(c)
+        else:
+            line_unicode.append(c)
+
+    return ''.join(line_ascii), ''.join(line_unicode)
+
+
 def is_ascii_cell(options, cell):
     for c in cell:
         val = ord(c)
@@ -190,12 +226,26 @@ def split_ascii_unicode_csv(options, text_runs):
         line_ascii = []
         line_unicode = []
         for cell in line:
+            # blank
+            if not cell:
+                line_ascii.append('')
+                line_unicode.append('')
+                continue
+
+            # number
+            if not is_astring(options, cell):
+                line_ascii.append(str(cell))
+                line_unicode.append(str(cell))
+                continue
+
+            cell = cell.strip()
             if is_ascii_cell(options, cell):
                 line_ascii.append(cell)
                 line_unicode.append('')
             else:
-                line_unicode.append(cell)
-                line_ascii.append('')
+                asc, uni = split_ascii_unicode_line(options, cell)
+                line_ascii.append(asc)
+                line_unicode.append(uni)
 
         outlines_ascii.append(line_ascii)
         outlines_unicode.append(line_unicode)
